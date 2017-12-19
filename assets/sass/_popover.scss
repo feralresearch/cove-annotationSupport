@@ -13,6 +13,7 @@
     position: relative;
     margin-top: 1.5rem;
     display: inline-block;
+	outline:none;
 }
 .popover_content {
     position: absolute;
@@ -41,8 +42,15 @@
 }
 
 .annotationSelected{
-	border:1px red dashed;
+	background-color: #ffd105 !important;
 	z-index:100;
 	position:relative;
-	border-radius: 0.5rem;
+}
+
+.annotationSelectedExact{
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffd105+0,ffff00+33,ffff00+50,ffff00+67,ffd105+100&0.96+10,0.96+50,0.96+90 */
+	background: -moz-linear-gradient(left, rgba(255,209,5,0.96) 0%, rgba(255,223,3,0.96) 10%, rgba(255,255,0,0.96) 33%, rgba(255,255,0,0.96) 50%, rgba(255,255,0,0.96) 67%, rgba(255,223,3,0.96) 90%, rgba(255,209,5,0.96) 100%) !important; /* FF3.6-15 */
+	background: -webkit-linear-gradient(left, rgba(255,209,5,0.96) 0%,rgba(255,223,3,0.96) 10%,rgba(255,255,0,0.96) 33%,rgba(255,255,0,0.96) 50%,rgba(255,255,0,0.96) 67%,rgba(255,223,3,0.96) 90%,rgba(255,209,5,0.96) 100%) !important; /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to right, rgba(255,209,5,0.96) 0%,rgba(255,223,3,0.96) 10%,rgba(255,255,0,0.96) 33%,rgba(255,255,0,0.96) 50%,rgba(255,255,0,0.96) 67%,rgba(255,223,3,0.96) 90%,rgba(255,209,5,0.96) 100%) !important; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5ffd105', endColorstr='#f5ffd105',GradientType=1 ) !important; /* IE6-9 */
 }

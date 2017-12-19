@@ -34,12 +34,22 @@ function afterSnapshotLoaded(){
 	annotationHash("refresh");
 
 	// Keep a copy of the background colors at load
-	// Add a unique ID
+	// We also add a unique ID for every span and re-color with some transparency
+	// which allows us to see overlaps better.
 	annotationColors = [];
 	$(".annotator-hl").each(function(index) {
 		$(this).attr('spanID', generateUUID);
-		annotationColors.push($(this).css('background-color'));
+
+		// Assumes rgb(r,g,b)
+		var bgcolor = $(this).css('background-color').split(",");
+		var backgroundColorWithOpacityAdjustment = "rgba("+parseInt(bgcolor[0].replace(/\D/g,''))+","
+														  +parseInt(bgcolor[1].replace(/\D/g,''))+","
+														  +parseInt(bgcolor[2].replace(/\D/g,''))+
+														  ",0.6)";
+		console.log(backgroundColorWithOpacityAdjustment);
+		annotationColors.push(backgroundColorWithOpacityAdjustment);
 	});
+	resetAnnotationColor();
 
 	// Add click handler
 	$(".annotator-hl").click(function() {
@@ -137,7 +147,7 @@ function displayPopOverWith(collectedAnnotations){
 	currentPopoverDiv='#'+currentPopoverID;
 	var content = "Annotation count: "+collectedAnnotations.length;
 	var popover =
-	'<div id="'+currentPopoverID+'" class="popover_wrapper">'+
+	'<div id="'+currentPopoverID+'" class="popover_wrapper" tabindex="-1">'+
 	 	'<div class="push popover_content">'+
 	    	'<p class="popover_message">'+content+'</p>'+
 	  	'</div>'+
@@ -146,27 +156,31 @@ function displayPopOverWith(collectedAnnotations){
 	// Find the right location
 	$('body').append(popover);
 	$(currentPopoverDiv).hide();
-	var spanID = collectedAnnotations[0].getAttribute("spanID");
-	var selector = "span[spanID='"+spanID+"']";
-	var topPos = $(selector).offset().top;
-	var leftPos = $(selector).position().left + ($(selector).width()/2);
+	var divUnderClick = "span[spanID='"+collectedAnnotations[0].getAttribute("spanID")+"']";
+	var topPos = $(divUnderClick).offset().top;
+	var leftPos = $(divUnderClick).position().left + ($(divUnderClick).width()/2);
 
 	// Move left half of width to center (can't calculate while invisible)
 	leftPos -= 60;
-
-	$(selector).addClass("annotationSelected");
-	currentSelectedSpan=$(selector);
+	var allRelatedAnnotation = "span[data-uuid='"+collectedAnnotations[0].getAttribute("data-uuid")+"']";
+	$(allRelatedAnnotation).addClass("annotationSelected");
+	$(divUnderClick).addClass("annotationSelectedExact");
+	currentSelectedSpan=$(allRelatedAnnotation);
 
 	// Display
+	$(currentPopoverDiv).on( "focusout", function(){removeExistingPopover();});
 	$(currentPopoverDiv).css({top: topPos, left: leftPos, position:'absolute'}).fadeIn("fast");
+	$(currentPopoverDiv).focus();
 }
 
 function removeExistingPopover(){
 	if(currentPopoverID != null){
 		var currentPopoverDiv='#'+currentPopoverID;
-		var selector = "span[spanID='"+currentPopoverID+"']";
-		currentSelectedSpan.removeClass("annotationSelected");
-		$(currentPopoverDiv).fadeOut("fast");
+		$("span").removeClass("annotationSelected");
+		$("span").removeClass("annotationSelectedExact");
+		$(currentPopoverDiv).fadeOut("fast", function(){
+
+		});
 	}
 }
 

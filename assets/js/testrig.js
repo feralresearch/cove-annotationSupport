@@ -15,7 +15,6 @@ $( document ).ready(function() {
 	}
 	selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
 
-
 	// Actually realated to annotations
 	$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
 });
@@ -40,13 +39,12 @@ function afterSnapshotLoaded(){
 	$(".annotator-hl").each(function(index) {
 		$(this).attr('spanID', generateUUID);
 
-		// Assumes rgb(r,g,b)
+		// Assumes rgb(r,g,b) converts to rgba(r,g,b,0.6)
 		var bgcolor = $(this).css('background-color').split(",");
 		var backgroundColorWithOpacityAdjustment = "rgba("+parseInt(bgcolor[0].replace(/\D/g,''))+","
 														  +parseInt(bgcolor[1].replace(/\D/g,''))+","
 														  +parseInt(bgcolor[2].replace(/\D/g,''))+
 														  ",0.6)";
-		console.log(backgroundColorWithOpacityAdjustment);
 		annotationColors.push(backgroundColorWithOpacityAdjustment);
 	});
 	resetAnnotationColor();
@@ -76,31 +74,45 @@ function debounce_stop(){
 
 // Takes an array of spans (from onclick) and returns a more useful JSON
 function spansToJSON(array){
+	var excerptLength=100;
+	var teaserLength=200;
 	var data = [];
-	for(idx=0;idx<collectedAnnotations.length;idx++){
+	for(var idx=0;idx<collectedAnnotations.length;idx++){
 		var thisAnnotation =[];
+
 		thisAnnotation.annotation = annotationHash()[collectedAnnotations[idx].getAttribute("data-uuid")];
-		thisAnnotation.annotated_text = collectedAnnotations[idx].innerText.trim();
+
+		var firstRelatedAnnotationSelector = "span[data-uuid='"+collectedAnnotations[idx].getAttribute("data-uuid")+"']";
+		var firstRelatedAnnotation = $(firstRelatedAnnotationSelector).first();
+		thisAnnotation.annotated_text = firstRelatedAnnotation[0].innerText.trim().substring(0,excerptLength);
+
 		thisAnnotation.author_email = thisAnnotation.annotation.user?thisAnnotation.annotation.user:null;
 		thisAnnotation.author_username = collectedAnnotations[idx].getAttribute("data-username");
-
 
 		// Create a type identifier string
 		var ti;
 		// User
 		if(thisAnnotation.author_username){
-			ti = "[USER] "+thisAnnotation.author_username + "("+thisAnnotation.author_email+")";
+			ti = thisAnnotation.author_username + "("+thisAnnotation.author_email+")";
+			thisAnnotation.type="user";
 		// Tag
 		}else if(thisAnnotation.annotation.tags.length > 0){
-			ti = "[TAGGED] ("+thisAnnotation.annotation.tags+")";
+			ti="";
+			for(var idx2=0;idx2<thisAnnotation.annotation.tags.length;idx2++){
+				ti += ("<span class='popover_tag'>"+thisAnnotation.annotation.tags[idx2]+"</span>");
+			}
+			console.log("Tags: "+ti);
+			thisAnnotation.type="tag";
+
 		// Category
 		}else if(thisAnnotation.annotation.annotation_categories.length > 0){
-			ti = "[CAT] "+ thisAnnotation.annotation.annotation_categories;
+			ti = "Categories: "+ thisAnnotation.annotation.annotation_categories;
+			thisAnnotation.type="category";
+
 		}
-		thisAnnotation.typeIdentifier = ti;
+		thisAnnotation.typeIdentifierString = ti;
 
 		// Strip tags and linebreaks into teaser
-		var teaserLength=150;
 		var annotationText = $("<div>").html(thisAnnotation.annotation.text).text().trim();
 		annotationText = annotationText.replace(/(\r\n|\n|\r)/gm,"");
 		thisAnnotation.teaser = annotationText.substring(0,teaserLength);
@@ -132,12 +144,31 @@ currentPopoverID=null;
 currentSelectedSpan=null;
 function displayPopOverWith(collectedAnnotations){
 
+	var content = "";//"Annotation count: "+collectedAnnotations.length;
 	var annotationsUnderThisClick = spansToJSON(collectedAnnotations);
-	console.log("\n\"" + annotationsUnderThisClick[0].annotated_text+"\"");
-	$.each( annotationsUnderThisClick, function( key, value ) {
-		var thisAnnotation=value;
-		console.log(thisAnnotation.typeIdentifier + ": "+thisAnnotation.teaser);
+
+	var previousText="";
+	$.each( annotationsUnderThisClick, function( key, thisAnnotation ) {
+		console.log(thisAnnotation.typeIdentifierString);
+			content += "<table width=500 border='1'>";
+
+			if(thisAnnotation.annotated_text !== previousText){
+				content += "<tr>";
+				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;</td>";
+				content += "</tr>";
+			}
+			previousText=thisAnnotation.annotated_text;
+
+			content += "<tr>";
+			content += "	<td width=10><div class='typeIndicator typeIndicator_"+thisAnnotation.type+"'></div></td>";
+			content += "	<td class='popover_typeIdentifierString'>"+thisAnnotation.typeIdentifierString+"</td>";
+			content += "</tr>";
+			content += "<tr>";
+			content += "	<td class='popover_teaser'colspan=2>"+thisAnnotation.teaser+"</td>";
+			content += "</tr>";
+			content += "</table>";
 	});
+
 
 
 	removeExistingPopover();
@@ -145,11 +176,10 @@ function displayPopOverWith(collectedAnnotations){
 	// Build a popover
 	currentPopoverID=generateUUID();
 	currentPopoverDiv='#'+currentPopoverID;
-	var content = "Annotation count: "+collectedAnnotations.length;
 	var popover =
 	'<div id="'+currentPopoverID+'" class="popover_wrapper" tabindex="-1">'+
 	 	'<div class="push popover_content">'+
-	    	'<p class="popover_message">'+content+'</p>'+
+	    	content+
 	  	'</div>'+
 	'</div>';
 
@@ -157,11 +187,11 @@ function displayPopOverWith(collectedAnnotations){
 	$('body').append(popover);
 	$(currentPopoverDiv).hide();
 	var divUnderClick = "span[spanID='"+collectedAnnotations[0].getAttribute("spanID")+"']";
-	var topPos = $(divUnderClick).offset().top;
+	var topPos = $(divUnderClick).position().top;
 	var leftPos = $(divUnderClick).position().left + ($(divUnderClick).width()/2);
 
-	// Move left half of width to center (can't calculate while invisible)
-	leftPos -= 60;
+	// Move left half of width to center (hardcoded because we can't calculate it while invisible)
+	//leftPos -= 60;
 	var allRelatedAnnotation = "span[data-uuid='"+collectedAnnotations[0].getAttribute("data-uuid")+"']";
 	$(allRelatedAnnotation).addClass("annotationSelected");
 	$(divUnderClick).addClass("annotationSelectedExact");
@@ -178,9 +208,7 @@ function removeExistingPopover(){
 		var currentPopoverDiv='#'+currentPopoverID;
 		$("span").removeClass("annotationSelected");
 		$("span").removeClass("annotationSelectedExact");
-		$(currentPopoverDiv).fadeOut("fast", function(){
-
-		});
+		$(currentPopoverDiv).fadeOut("fast", function(){});
 	}
 }
 

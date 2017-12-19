@@ -16,19 +16,28 @@ $( document ).ready(function() {
 	selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
 
 
-	// Actuall realated to annotations
-	$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterAnnotationsLoaded();});
+	// Actually realated to annotations
+	$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
 });
 
 
 // Init: After annotations are loaded
-function afterAnnotationsLoaded(){
+function afterSnapshotLoaded(){
+
+	// Everything relies on "annotations" object, which comes from cove studio snapshot
+	if (typeof annotations === 'undefined') {
+		console.log('AnnotationTool: No annotations found!');
+		return;
+	}
+
+	// Convert array to slightly more useful hash by ID
+	annotationHash("refresh");
 
 	// Keep a copy of the background colors at load
 	// Add a unique ID
 	annotationColors = [];
 	$(".annotator-hl").each(function(index) {
-		$(this).attr('uniqueID', generateUUID);
+		$(this).attr('spanID', generateUUID);
 		annotationColors.push($(this).css('background-color'));
 	});
 
@@ -55,10 +64,71 @@ function debounce_stop(){
 	collectedAnnotations=[];
 }
 
+// Takes an array of spans (from onclick) and returns a more useful JSON
+function spansToJSON(array){
+	var data = [];
+	for(idx=0;idx<collectedAnnotations.length;idx++){
+		var thisAnnotation =[];
+		thisAnnotation.annotation = annotationHash()[collectedAnnotations[idx].getAttribute("data-uuid")];
+		thisAnnotation.annotated_text = collectedAnnotations[idx].innerText.trim();
+		thisAnnotation.author_email = thisAnnotation.annotation.user?thisAnnotation.annotation.user:null;
+		thisAnnotation.author_username = collectedAnnotations[idx].getAttribute("data-username");
+
+
+		// Create a type identifier string
+		var ti;
+		// User
+		if(thisAnnotation.author_username){
+			ti = "[USER] "+thisAnnotation.author_username + "("+thisAnnotation.author_email+")";
+		// Tag
+		}else if(thisAnnotation.annotation.tags.length > 0){
+			ti = "[TAGGED] ("+thisAnnotation.annotation.tags+")";
+		// Category
+		}else if(thisAnnotation.annotation.annotation_categories.length > 0){
+			ti = "[CAT] "+ thisAnnotation.annotation.annotation_categories;
+		}
+		thisAnnotation.typeIdentifier = ti;
+
+		// Strip tags and linebreaks into teaser
+		var teaserLength=150;
+		var annotationText = $("<div>").html(thisAnnotation.annotation.text).text().trim();
+		annotationText = annotationText.replace(/(\r\n|\n|\r)/gm,"");
+		thisAnnotation.teaser = annotationText.substring(0,teaserLength);
+		if(annotationText.length > teaserLength){
+			thisAnnotation.teaser += "…";
+		}
+
+		data[idx]=thisAnnotation;
+	}
+	return data;
+}
+
+function annotationHash(option){
+	if (typeof annotationsAsHash === 'undefined' || option === "refresh") {
+		annotationsAsHash=[];
+		if (!('uuid' in annotations[0])){
+			console.error("AnnotationTool: ERROR Cannot find UUID in annotations, are you using an old snapshot?");
+		}
+		for(idx=0;idx<annotations.length;idx++){
+			thisAnnotation=annotations[idx];
+			annotationsAsHash[thisAnnotation.uuid]=thisAnnotation;
+		}
+	}
+	return annotationsAsHash;
+}
+
 // Reveal a popover populated with the content
 currentPopoverID=null;
 currentSelectedSpan=null;
 function displayPopOverWith(collectedAnnotations){
+
+	var annotationsUnderThisClick = spansToJSON(collectedAnnotations);
+	console.log("\n\"" + annotationsUnderThisClick[0].annotated_text+"\"");
+	$.each( annotationsUnderThisClick, function( key, value ) {
+		var thisAnnotation=value;
+		console.log(thisAnnotation.typeIdentifier + ": "+thisAnnotation.teaser);
+	});
+
 
 	removeExistingPopover();
 
@@ -76,8 +146,8 @@ function displayPopOverWith(collectedAnnotations){
 	// Find the right location
 	$('body').append(popover);
 	$(currentPopoverDiv).hide();
-	var uniqueid = collectedAnnotations[0].getAttribute("uniqueid");
-	var selector = "span[uniqueid='"+uniqueid+"']";
+	var spanID = collectedAnnotations[0].getAttribute("spanID");
+	var selector = "span[spanID='"+spanID+"']";
 	var topPos = $(selector).offset().top;
 	var leftPos = $(selector).position().left + ($(selector).width()/2);
 
@@ -94,7 +164,7 @@ function displayPopOverWith(collectedAnnotations){
 function removeExistingPopover(){
 	if(currentPopoverID != null){
 		var currentPopoverDiv='#'+currentPopoverID;
-		var selector = "span[uniqueid='"+currentPopoverID+"']";
+		var selector = "span[spanID='"+currentPopoverID+"']";
 		currentSelectedSpan.removeClass("annotationSelected");
 		$(currentPopoverDiv).fadeOut("fast");
 	}
@@ -121,7 +191,7 @@ function changeSnapshot(){
 	removeExistingPopover();
 	var selectBox = document.getElementById("annotation_snapshotSelector");
 	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-	$( "#annotation_snapshot" ).load(selectedValue, function(){afterAnnotationsLoaded();});
+	$( "#annotation_snapshot" ).load(selectedValue, function(){afterSnapshotLoaded();});
 }
 
 // Eugene Burtsev

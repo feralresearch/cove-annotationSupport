@@ -1,0 +1,48 @@
+.popover_title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 24px;
+  line-height: 36px;
+  text-decoration: none;
+  color: rgb(228, 68, 68);
+  text-align: center;
+  padding: 15px 0;
+}
+
+.popover_wrapper {
+	z-index: 200;
+    position: relative;
+    margin-top: 1.5rem;
+    display: inline-block;
+}
+.popover_content {
+    position: absolute;
+     transform: translate(0,10px);
+    background-color: #BFBFBF;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    width: auto;
+
+}
+.popover_content:before {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    right: calc(50% - 10px);
+    top: -8px;
+    border-style: solid;
+    border-width: 0 10px 10px 10px;
+    border-color: transparent transparent #BFBFBF transparent;
+    transition-duration: 0.3s;
+    transition-property: transform;
+}
+
+.popover_message {
+  text-align: center;
+}
+
+.annotationSelected{
+	border:1px red dashed;
+	z-index:100;
+	position:relative;
+	border-radius: 0.5rem;
+}

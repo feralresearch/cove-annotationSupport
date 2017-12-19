@@ -1,0 +1,4 @@
+#!/bin/bash
+sass --watch assets/sass:assets/css &
+#static -p 8000
+browser-sync start --server --files "./"

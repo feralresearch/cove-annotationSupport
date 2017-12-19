@@ -1,0 +1,26 @@
+
+#content{
+	padding:3rem 0 0 0;
+}
+#annotation_snapshotSelector_container{
+	background-color: grey;
+	width:100vw;
+	padding:.5rem;
+	position: fixed;
+}
+#annotation_snapshot{
+	padding:5rem;
+	overflow: scroll;
+}
+
+.button{
+	width:10rem;
+	text-align: center;
+	background-color: #eeeeee;
+	border-radius: 0.5rem;
+	border:1px solid grey;
+}
+.button:hover{
+	background-color: #222222;
+	color:orange;
+}

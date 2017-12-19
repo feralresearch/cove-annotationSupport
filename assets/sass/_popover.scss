@@ -18,7 +18,7 @@
 .popover_content {
     position: absolute;
   	transform: translate(-34px);
-    background-color: #BFBFBF;
+    background-color: $mainColor;
     padding: .5rem;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
     width: auto;
@@ -42,7 +42,7 @@
 }
 
 .annotationSelected{
-	background-color: #ffd105 !important;
+	background-color: $highlightColor !important;
 	z-index:100;
 	position:relative;
 }
@@ -62,13 +62,13 @@
 	border-radius: 50%;
 }
 .typeIndicator_user{
-	background: red;
+	background: $userColor;
 }
 .typeIndicator_tag{
-	background: green;
+	background: $tagColor;
 }
 .typeIndicator_category{
-	background: blue;
+	background: $categoryColor;
 }
 
 .popover_content{
@@ -79,6 +79,7 @@
   border:0;
   padding:0 0 .5rem 0;
   font-size:.8rem;
+  min-width: 500px;
 }
 
 .popover_content tr,td{
@@ -99,15 +100,18 @@
   padding:0rem 0 0 1rem;
   font-size:.8rem;
 }
-.popover_tag {
+.popover_tag,.popover_category {
 	background-color: #f1f1f1;
 	border-radius: 0.3rem;
 	border:1px #8080807a solid;
 	padding:0 .5rem 0 .5rem;
 	margin:0 .2rem 0 0;
 }
+.popover_category{
+	background-color: #cccccc;
+}
 
-table:hover{
+.popover_content table:hover{
   background-color:#6f6a6a9e;
   border-radius:0.3rem;
 }

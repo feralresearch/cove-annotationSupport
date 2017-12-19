@@ -32,6 +32,13 @@ function afterSnapshotLoaded(){
 	// Convert array to slightly more useful hash by ID
 	annotationHash("refresh");
 
+	// Categories from filterList
+	categoriesByID=[];
+	for(idx=0;idx<filterLists.annotation_categories.length;idx++){
+		categoriesByID[filterLists.annotation_categories[idx].id]=filterLists.annotation_categories[idx].text;
+	}
+
+
 	// Keep a copy of the background colors at load
 	// We also add a unique ID for every span and re-color with some transparency
 	// which allows us to see overlaps better.
@@ -95,18 +102,22 @@ function spansToJSON(array){
 		if(thisAnnotation.author_username){
 			ti = thisAnnotation.author_username + "("+thisAnnotation.author_email+")";
 			thisAnnotation.type="user";
+
 		// Tag
 		}else if(thisAnnotation.annotation.tags.length > 0){
 			ti="";
 			for(var idx2=0;idx2<thisAnnotation.annotation.tags.length;idx2++){
 				ti += ("<span class='popover_tag'>"+thisAnnotation.annotation.tags[idx2]+"</span>");
 			}
-			console.log("Tags: "+ti);
 			thisAnnotation.type="tag";
 
 		// Category
 		}else if(thisAnnotation.annotation.annotation_categories.length > 0){
-			ti = "Categories: "+ thisAnnotation.annotation.annotation_categories;
+
+			ti="";
+			for(var idx2=0;idx2<thisAnnotation.annotation.annotation_categories.length;idx2++){
+				ti += ("<span class='popover_category'>"+categoriesByID[thisAnnotation.annotation.annotation_categories[idx2]]+"</span>");
+			}
 			thisAnnotation.type="category";
 
 		}
@@ -143,14 +154,13 @@ function annotationHash(option){
 currentPopoverID=null;
 currentSelectedSpan=null;
 function displayPopOverWith(collectedAnnotations){
-
+$( "#annotation_detail_panel" ).empty();
 	var content = "";//"Annotation count: "+collectedAnnotations.length;
 	var annotationsUnderThisClick = spansToJSON(collectedAnnotations);
 
 	var previousText="";
 	$.each( annotationsUnderThisClick, function( key, thisAnnotation ) {
-		console.log(thisAnnotation.typeIdentifierString);
-			content += "<table width=500 border='1'>";
+			content += "<table id='"+thisAnnotation.annotation.uuid+"'>";
 
 			if(thisAnnotation.annotated_text !== previousText){
 				content += "<tr>";
@@ -168,8 +178,6 @@ function displayPopOverWith(collectedAnnotations){
 			content += "</tr>";
 			content += "</table>";
 	});
-
-
 
 	removeExistingPopover();
 
@@ -201,6 +209,12 @@ function displayPopOverWith(collectedAnnotations){
 	$(currentPopoverDiv).on( "focusout", function(){removeExistingPopover();});
 	$(currentPopoverDiv).css({top: topPos, left: leftPos, position:'absolute'}).fadeIn("fast");
 	$(currentPopoverDiv).focus();
+
+	// Add click linked
+	$("table").each(function(index) {
+		$(this).on( "click", function(){createAnnotationPanel($(this)[0].getAttribute("id"));});
+	});
+
 }
 
 function removeExistingPopover(){
@@ -254,4 +268,12 @@ function resetAnnotationColor() {
 		$(this).css("background-color", annotationColors[idx]);
 		idx++;
 	});
+}
+
+function createAnnotationPanel(annotationUUID){
+	removeExistingPopover();
+	var theseAnnotations = $("span[data-uuid='"+annotationUUID+"']");
+	console.log("Ok!:"+annotations);
+	$( "#annotation_detail_panel" ).empty();
+	theseAnnotations.clone().appendTo( "#annotation_detail_panel" );
 }

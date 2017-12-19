@@ -7,5 +7,14 @@
 /* FontAwesome icon font http://fontawesome.io/ */
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css");
 
+$mainColor: #BFBFBF;
+$tagColor: red;
+$categoryColor: green;
+$userColor: blue;
+$highlightColor: #ffd105;
+$focusColor:$highlightColor;
+
 @import "base";
 @import "popover";
+@import "filterPanel";
+@import "detailPanel";

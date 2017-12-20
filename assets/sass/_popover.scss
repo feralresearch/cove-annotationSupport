@@ -9,7 +9,7 @@
 }
 
 .popover_wrapper {
-	z-index: 200;
+	z-index: 1000;
     position: relative;
     margin-top: 1.5rem;
     display: inline-block;
@@ -43,7 +43,7 @@
 
 .annotationSelected{
 	background-color: $highlightColor !important;
-	z-index:100;
+	z-index:-1;
 	position:relative;
 }
 

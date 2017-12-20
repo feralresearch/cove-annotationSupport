@@ -1,7 +1,29 @@
 <html>
 	<head>
 		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-		<script src="assets/js/testrig.js"></script>
+		<script src="assets/js/annotationSupport_init.js"></script>
+		<script src="assets/js/annotationSupport_detailPanel.js"></script>
+		<script>
+			// Init
+			$( document ).ready(function() {
+
+				// Init dropdown with snapshots
+				var data = {
+				    'assets/snapshots/goblin_market.html': 'Goblin Market',
+				    'assets/snapshots/harlots_house.html':'Harlots House',
+					'assets/snapshots/heart_of_darkness_part1.html':'Heart of Darkness I',
+					'assets/snapshots/in_an_artists_studio.html':'In An Artists Studio'
+				}
+				var selector = $('#annotation_snapshotSelector');
+				for(var val in data) {
+				    $('<option  />', {value: val, text: data[val]}).appendTo(selector);
+				}
+				selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
+
+				// Actually realated to annotations
+				$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
+			});
+		</script>
 		<link rel="stylesheet" type="text/css" href="assets/css/testrig.css">
 	</head>
 	<body>
@@ -10,11 +32,28 @@
 				<option>Select Snapshot:</option>
 			</select>
 		</div>
-		<div id="annotation_filter_panel"></div>
+
+		<!-- Snapshot goes here --->
 		<div id="content">
-			<div id="button_densityView" class="button" onclick="toggleDensity()">toggle density</div>
 			<div id="annotation_snapshot"></div>
 		</div>
-		<div id="annotation_detail_panel"></div>
+		<div id="ap_detail_panel">
+			<div id="ap_detail_panel_content">
+				<div id="ap_button_panelToggle" class="ap_tab_pinned fa fa-arrow-circle-up"></div>
+
+				<div class="ap_tabContent" id="ap_tab_annotation" tabName="Annotations">
+					<div id="ap_annotation_sourceinfo"></div>
+					<div id="ap_annotation_sourcetext"></div>
+					<div id="ap_annotation_annotation"></div>
+				</div>
+
+				<div class="ap_tabContent" id="ap_tab_filter" tabName="Filters">
+					<div id="button_densityView" class="button" onclick="toggleDensity()">toggle density</div>
+					<option></option>
+				</div>
+
+			</div>
+		</div>
+
 	</body>
 </html>

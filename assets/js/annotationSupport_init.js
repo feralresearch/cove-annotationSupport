@@ -1,28 +1,15 @@
 
+$("#annotation_detail_panel").hide();
+
 // Init
 $( document ).ready(function() {
-
-	// Init dropdown with snapshots
-	var data = {
-	    'assets/snapshots/goblin_market.html': 'Goblin Market',
-	    'assets/snapshots/harlots_house.html':'Harlots House',
-		'assets/snapshots/heart_of_darkness_part1.html':'Heart of Darkness I',
-		'assets/snapshots/in_an_artists_studio.html':'In An Artists Studio'
-	}
-	var selector = $('#annotation_snapshotSelector');
-	for(var val in data) {
-	    $('<option  />', {value: val, text: data[val]}).appendTo(selector);
-	}
-	selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
-
-	// Actually realated to annotations
+	// Default
 	$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
 });
 
 
 // Init: After annotations are loaded
 function afterSnapshotLoaded(){
-
 	// Everything relies on "annotations" object, which comes from cove studio snapshot
 	if (typeof annotations === 'undefined') {
 		console.log('AnnotationTool: No annotations found!');
@@ -31,6 +18,14 @@ function afterSnapshotLoaded(){
 
 	// Convert array to slightly more useful hash by ID
 	annotationHash("refresh");
+
+	// Init panel
+	// Fixme: should make panel class a singleton instead
+	if(typeof annotationPanel === 'undefined'){
+		annotationPanel = new AnnotationPanel;
+		annotationPanel.init();
+	}
+
 
 	// Categories from filterList
 	categoriesByID=[];
@@ -80,21 +75,21 @@ function debounce_stop(){
 }
 
 // Takes an array of spans (from onclick) and returns a more useful JSON
-function spansToJSON(array){
+function annotationsWithMetadata(spansArray){
 	var excerptLength=100;
 	var teaserLength=200;
 	var data = [];
-	for(var idx=0;idx<collectedAnnotations.length;idx++){
+	for(var idx=0;idx<spansArray.length;idx++){
 		var thisAnnotation =[];
+		thisAnnotation.spanID = spansArray[idx].getAttribute("spanID");
+		thisAnnotation.annotation = annotationHash()[spansArray[idx].getAttribute("data-uuid")];
 
-		thisAnnotation.annotation = annotationHash()[collectedAnnotations[idx].getAttribute("data-uuid")];
-
-		var firstRelatedAnnotationSelector = "span[data-uuid='"+collectedAnnotations[idx].getAttribute("data-uuid")+"']";
+		var firstRelatedAnnotationSelector = "span[data-uuid='"+spansArray[idx].getAttribute("data-uuid")+"']";
 		var firstRelatedAnnotation = $(firstRelatedAnnotationSelector).first();
 		thisAnnotation.annotated_text = firstRelatedAnnotation[0].innerText.trim().substring(0,excerptLength);
 
 		thisAnnotation.author_email = thisAnnotation.annotation.user?thisAnnotation.annotation.user:null;
-		thisAnnotation.author_username = collectedAnnotations[idx].getAttribute("data-username");
+		thisAnnotation.author_username = spansArray[idx].getAttribute("data-username");
 
 		// Create a type identifier string
 		var ti;
@@ -156,11 +151,11 @@ currentSelectedSpan=null;
 function displayPopOverWith(collectedAnnotations){
 $( "#annotation_detail_panel" ).empty();
 	var content = "";//"Annotation count: "+collectedAnnotations.length;
-	var annotationsUnderThisClick = spansToJSON(collectedAnnotations);
+	var annotationsUnderThisClick = annotationsWithMetadata(collectedAnnotations);
 
 	var previousText="";
 	$.each( annotationsUnderThisClick, function( key, thisAnnotation ) {
-			content += "<table id='"+thisAnnotation.annotation.uuid+"'>";
+			content += "<table spanID='"+thisAnnotation.spanID+"' id='"+thisAnnotation.annotation.uuid+"'>";
 
 			if(thisAnnotation.annotated_text !== previousText){
 				content += "<tr>";
@@ -212,7 +207,10 @@ $( "#annotation_detail_panel" ).empty();
 
 	// Add click linked
 	$("table").each(function(index) {
-		$(this).on( "click", function(){createAnnotationPanel($(this)[0].getAttribute("id"));});
+		$(this).on( "click", function(){
+			removeExistingPopover();
+			annotationPanel.loadAnnotation($(this)[0].getAttribute("spanID"));
+		});
 	});
 
 }
@@ -268,12 +266,4 @@ function resetAnnotationColor() {
 		$(this).css("background-color", annotationColors[idx]);
 		idx++;
 	});
-}
-
-function createAnnotationPanel(annotationUUID){
-	removeExistingPopover();
-	var theseAnnotations = $("span[data-uuid='"+annotationUUID+"']");
-	console.log("Ok!:"+annotations);
-	$( "#annotation_detail_panel" ).empty();
-	theseAnnotations.clone().appendTo( "#annotation_detail_panel" );
 }

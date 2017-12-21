@@ -6,6 +6,8 @@
 		<script>
 			// Init
 			$( document ).ready(function() {
+				$("#annotation_detail_panel").hide();
+
 
 				// Init dropdown with snapshots
 				var data = {
@@ -20,9 +22,20 @@
 				}
 				selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
 
-				// Actually realated to annotations
-				$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
+				// Initial load
+				setTimeout(function(){
+					// Actually realated to annotations
+					$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){annotationToolInit();});
+					$("#annotation_detail_panel").fadeIn("fast");
+				},1000);
 			});
+
+			function changeSnapshot(){
+				removeExistingPopover();
+				var selectBox = document.getElementById("annotation_snapshotSelector");
+				var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+				$( "#annotation_snapshot" ).load(selectedValue, function(){annotationToolInit();});
+			}
 		</script>
 		<link rel="stylesheet" type="text/css" href="assets/css/testrig.css">
 	</head>
@@ -39,17 +52,35 @@
 		</div>
 		<div id="ap_detail_panel">
 			<div id="ap_detail_panel_content">
-				<div id="ap_button_panelToggle" class="ap_tab_pinned fa fa-arrow-circle-up"></div>
-
+				<div class="ap_tab_pinned">
+				<div id="ap_button_panelToggle" class="fa fa_button fa-arrow-circle-up"></div>
+				<div id="button_densityView" class="fa fa_button fa-file-text-o" aria-hidden="true" onclick="toggleDensity()"></div>
+			</div>
 				<div class="ap_tabContent" id="ap_tab_annotation" tabName="Annotations">
 					<div id="ap_annotation_sourceinfo"></div>
-					<div id="ap_annotation_sourcetext"></div>
-					<div id="ap_annotation_annotation"></div>
+					<div id="ap_annotation_sourcetext"><center>Annotation Details</center></div>
+					<div id="ap_annotation_annotation"><span class="fa fa-info-circle" aria-hidden="true"></span> Select an annotation from the text above, or click the "filters" tab to filter the document.</div>
 				</div>
 
 				<div class="ap_tabContent" id="ap_tab_filter" tabName="Filters">
-					<div id="button_densityView" class="button" onclick="toggleDensity()">toggle density</div>
-					<option></option>
+					<div class="ap_filterSet activeSet">
+						<div id="button_filterApplied" class="fa fa-toggle-off" aria-hidden="true" onclick="toggleFilter()"></div>
+						<div id="button_filterAppliedStatus"></div>
+						<hr>
+						<div id="ap_filter_active"></div>
+					</div>
+					<div class="ap_filterSet tagSet">
+						Tags:
+						<div id="ap_filter_tags"></div>
+					</div>
+					<div class="ap_filterSet categorySet">
+						Categories:
+						<div id="ap_filter_category"></div>
+					</div>
+					<div class="ap_filterSet peopleSet">
+						People:
+						<div id="ap_filter_people"></div>
+					</div>
 				</div>
 
 			</div>

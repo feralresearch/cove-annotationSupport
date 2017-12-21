@@ -25,12 +25,12 @@ AnnotationPanel.prototype.init = function(){
 		console.log('AnnotationDetailPanel: Annotations not found, did you run me before annotationSupport_init.js?');
 		return;
 	}
-	// Configure tabs and make visible
-	$("#ap_button_panelToggle").click(function(){annotationPanel.togglePanel()});
+
 
 
 	// Build the tabs
 	buildTabs();
+	this.initFilterPanel();
 	this.openTab('Annotations');
 
 	// Start minimized
@@ -42,6 +42,7 @@ AnnotationPanel.prototype.init = function(){
 
 	function buildTabs(){
 		// Init tab headers
+		$(".ap_tab").remove();
 		tabSet="";
 		$(".ap_tabContent").each(function(){
 			var tabName = $(this)[0].getAttribute("tabName");
@@ -51,11 +52,11 @@ AnnotationPanel.prototype.init = function(){
 
 		// Position the tabs
 		var counter=0;
-		var indent=2;
+		var indent=4;
 		$(".ap_tab").each(function(){
 			leftMargin=indent+"rem";
 			$(this).css("left",leftMargin);
-			indent+=5;
+			indent+=6.3;
 		});
 		$(".ap_tab").first().addClass("open");
 	}
@@ -81,6 +82,7 @@ AnnotationPanel.prototype.openTab = function(tabName){
 }
 
 AnnotationPanel.prototype.togglePanel = function(){
+	console.log("Toggling panel:"+this.isPanelOpen);
 	this.isPanelOpen=!this.isPanelOpen;
 	this.panelOpen(this.isPanelOpen);
 }
@@ -101,14 +103,127 @@ AnnotationPanel.prototype.panelOpen = function(shouldOpen){
 	}
 }
 
+// Init filter panel
+AnnotationPanel.prototype.initFilterPanel = function(){
+
+	// Filters
+	var categoryList="Categories:<br>";
+	for(idx=0;idx<filterLists.annotation_categories.length;idx++){
+		var thisID = generateUUID();
+		categoryList += "<div filterType='category' "+
+						"class='filterOption categoryOption' "+
+						"id='"+thisID+"' "+
+						"onclick=\"annotationPanel.toggleFilterItemState(\'"+thisID+"\')\" "+
+						"filterID='"+filterLists.annotation_categories[idx].id+"'>"+
+						filterLists.annotation_categories[idx].text+
+						"</div>";
+	}
+	$("#ap_filter_category").empty();
+	$("#ap_filter_category").append(categoryList);
+
+	var tagList="Tags:<br>";
+	for(idx=0;idx<filterLists.tags.length;idx++){
+		var thisID = generateUUID();
+		tagList +=  "<div filterType='tag' "+
+					"class='filterOption tagOption' "+
+					"id='"+thisID+"' "+
+					"onclick=\"annotationPanel.toggleFilterItemState(\'"+thisID+"\')\" "+
+					"filterID='"+filterLists.tags[idx].id+"'>"+
+					filterLists.tags[idx].text+
+					"</div>";
+	}
+	$("#ap_filter_tags").empty();
+	$("#ap_filter_tags").append(tagList);
+
+	var userList="People:<br>";
+	for(idx=0;idx<filterLists.user.length;idx++){
+		var thisID = generateUUID();
+		userList += "<div filterType='person' "+
+					"class='filterOption personOption' "+
+					"id='"+thisID+"' "+
+					"onclick=\"annotationPanel.toggleFilterItemState(\'"+thisID+"\')\" "+
+					"filterID='"+filterLists.user[idx].id+"'>"+
+					filterLists.user[idx].text+
+					" ("+filterLists.user[idx].id+")"+
+					"</div>";
+	}
+	$("#ap_filter_people").empty();
+	$("#ap_filter_people").append(userList);
+
+	// Sort them
+	this.sortFilterItems();
+}
+
+AnnotationPanel.prototype.toggleFilterItemState = function(id){
+	var selector="#"+id;
+
+	// Remove from filter
+	if($(selector).hasClass("active")){
+		$(selector).removeClass("active");
+
+		switch($(selector).attr("filterType")) {
+		    case "tag":
+				$(selector).appendTo("#ap_filter_tags");
+				break;
+
+			case "category":
+				$(selector).appendTo("#ap_filter_category");
+				break;
+
+			case "person":
+				$(selector).appendTo("#ap_filter_people");
+				break;
+		}
+
+	// Add to filter
+	}else{
+		$(selector).addClass("active");
+		$(selector).appendTo("#ap_filter_active");
+	}
+
+	applyFilters();
+	this.sortFilterItems();
+
+}
+
+AnnotationPanel.prototype.sortFilterItems = function(divID){
+	this.sortFiltersIn("#ap_filter_tags");
+	this.sortFiltersIn("#ap_filter_category");
+	this.sortFiltersIn("#ap_filter_people");
+	this.sortFiltersIn("#ap_filter_active");
+}
+AnnotationPanel.prototype.sortFiltersIn = function(divID){
+	var tags = $(divID).children(".filterOption");
+	var sortedTags = tags.sort(function(a,b){
+		return $(a).text().toLowerCase().localeCompare($(b).text().toLowerCase());
+	});
+	$(divID).html(sortedTags);
+}
+
 // Load a particular annotation into the annotation panel
 AnnotationPanel.prototype.loadAnnotation = function(spanID){
 	this.panelOpen(true);
 	var thisAnnotation = annotationsWithMetadata($("span[spanID='"+spanID+"']").first())[0];
 
 	// Load annotation info into infobar
-	var sourceInfo =  "<div class='typeIndicator typeIndicator_"+thisAnnotation.type+"'></div>";
-	 	sourceInfo += "<div id='ap_annotation_sourceInfoText'>"+thisAnnotation.typeIdentifierString+"</div>";
+
+	var sourceInfo =  "<div class='";
+	switch (thisAnnotation.type) {
+		case "user":
+			sourceInfo += "personOption";
+			break;
+
+		case "tag":
+			sourceInfo += "tagOption";
+			break;
+
+		case "category":
+			sourceInfo += "categoryOption";
+			break;
+	}
+
+
+	sourceInfo += "' id='ap_annotation_sourceInfoText'>"+thisAnnotation.typeIdentifierString+"</div>";
 	$("#ap_annotation_sourceinfo").empty();
 	$("#ap_annotation_sourceinfo").append(sourceInfo);
 
@@ -122,4 +237,6 @@ AnnotationPanel.prototype.loadAnnotation = function(spanID){
 	$("#ap_annotation_annotation").empty();
 	$("#ap_annotation_annotation").append(thisAnnotation.annotation.text);
 	$("#ap_annotation_annotation").scrollTop(0);
+
+	this.openTab('Annotations');
 }

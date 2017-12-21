@@ -1,15 +1,15 @@
 
-$("#annotation_detail_panel").hide();
-
-// Init
-$( document ).ready(function() {
-	// Default
-	$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){afterSnapshotLoaded();});
-});
-
 
 // Init: After annotations are loaded
-function afterSnapshotLoaded(){
+function annotationToolInit(){
+
+	currentPopoverID=null;
+	currentSelectedSpan=null;
+	debounceTimer=null;
+	collectedAnnotations=[];
+	densityView=false;
+	filterApplied=false;
+
 	// Everything relies on "annotations" object, which comes from cove studio snapshot
 	if (typeof annotations === 'undefined') {
 		console.log('AnnotationTool: No annotations found!');
@@ -20,19 +20,20 @@ function afterSnapshotLoaded(){
 	annotationHash("refresh");
 
 	// Init panel
-	// Fixme: should make panel class a singleton instead
-	if(typeof annotationPanel === 'undefined'){
-		annotationPanel = new AnnotationPanel;
-		annotationPanel.init();
-	}
-
+	annotationPanel = new AnnotationPanel;
+	annotationPanel.init();
+	// Configure tabs and make visible
+	$("#ap_button_panelToggle").click(function(){
+		console.log("clickclickclick");
+		console.log("HereQWith: "+annotationPanel);
+		annotationPanel.togglePanel()
+	});
 
 	// Categories from filterList
 	categoriesByID=[];
 	for(idx=0;idx<filterLists.annotation_categories.length;idx++){
 		categoriesByID[filterLists.annotation_categories[idx].id]=filterLists.annotation_categories[idx].text;
 	}
-
 
 	// Keep a copy of the background colors at load
 	// We also add a unique ID for every span and re-color with some transparency
@@ -55,11 +56,14 @@ function afterSnapshotLoaded(){
 	$(".annotator-hl").click(function() {
   		debounceCollect(this);
 	});
+
+	toggleFilter()
+
+	$("#ap_filter_active").append("Click on tags, categories or people to build a filter.");
+	$("#annotation_detail_panel").fadeIn("fast");
 }
 
 // Collect all the annotations from a click event
-debounceTimer=null;
-collectedAnnotations=[];
 function debounceCollect(annotation){
 	if(debounceTimer == null){
 		started=true;
@@ -95,7 +99,7 @@ function annotationsWithMetadata(spansArray){
 		var ti;
 		// User
 		if(thisAnnotation.author_username){
-			ti = thisAnnotation.author_username + "("+thisAnnotation.author_email+")";
+			ti = thisAnnotation.author_username + " ("+thisAnnotation.author_email+")";
 			thisAnnotation.type="user";
 
 		// Tag
@@ -146,10 +150,8 @@ function annotationHash(option){
 }
 
 // Reveal a popover populated with the content
-currentPopoverID=null;
-currentSelectedSpan=null;
 function displayPopOverWith(collectedAnnotations){
-$( "#annotation_detail_panel" ).empty();
+	$( "#annotation_detail_panel" ).empty();
 	var content = "";//"Annotation count: "+collectedAnnotations.length;
 	var annotationsUnderThisClick = annotationsWithMetadata(collectedAnnotations);
 
@@ -165,11 +167,24 @@ $( "#annotation_detail_panel" ).empty();
 			previousText=thisAnnotation.annotated_text;
 
 			content += "<tr>";
-			content += "	<td width=10><div class='typeIndicator typeIndicator_"+thisAnnotation.type+"'></div></td>";
-			content += "	<td class='popover_typeIdentifierString'>"+thisAnnotation.typeIdentifierString+"</td>";
+
+			switch (thisAnnotation.type) {
+				case "user":
+					content += "	<td class='personOption ";
+					break;
+
+				case "tag":
+					content += "	<td class='tagOption ";
+					break;
+
+				case "category":
+					content += "	<td class='categoryOption ";
+					break;
+			}
+			content += "popover_typeIdentifierString'>"+thisAnnotation.typeIdentifierString+"</td>";
 			content += "</tr>";
 			content += "<tr>";
-			content += "	<td class='popover_teaser'colspan=2>"+thisAnnotation.teaser+"</td>";
+			content += "	<td class='popover_teaser'>"+thisAnnotation.teaser+"</td>";
 			content += "</tr>";
 			content += "</table>";
 	});
@@ -229,23 +244,54 @@ $( window ).resize(function() {
 });
 
 
-densityView=false;
 function toggleDensity(){
+	densityView=!densityView;
 	if(densityView){
+		$("#button_densityView").removeClass("fa-file-text-o");
+		$("#button_densityView").addClass("fa-file-text");
 		$(".annotator-hl").each(function(index) {
 			$(this).css("background-color", "rgba(64,64,64,.3)");
 		});
 	}else{
+		$("#button_densityView").removeClass("fa-file-text");
+		$("#button_densityView").addClass("fa-file-text-o");
 		resetAnnotationColor();
 	}
-	densityView=!densityView;
 }
 
-function changeSnapshot(){
-	removeExistingPopover();
-	var selectBox = document.getElementById("annotation_snapshotSelector");
-	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-	$( "#annotation_snapshot" ).load(selectedValue, function(){afterSnapshotLoaded();});
+
+function toggleFilter(){
+	filterApplied=!filterApplied;
+	applyFilters();
+}
+function applyFilters(){
+
+	// Remove all filters first
+	//$("span[spanID]").removeClass();
+
+	// Turn on
+	if(filterApplied){
+		$("#button_filterApplied").removeClass("fa-toggle-off");
+		$("#button_filterApplied").addClass("fa-toggle-on");
+		$("#button_filterAppliedStatus").addClass("on");
+		$("#button_filterAppliedStatus").removeClass("off");
+
+		// Apply selected filters
+		$("#ap_filter_active").find("div").each(function(){
+			var filterType = $(this)[0].getAttribute("filtertype");
+			var filterID = $(this)[0].getAttribute("filterid");
+			console.log(filterType+" - "+filterID);
+			//annotation_category-  filterID
+		});
+
+	// Turn off
+	}else{
+		$("#button_filterApplied").removeClass("fa-toggle-on");
+		$("#button_filterApplied").addClass("fa-toggle-off");
+		$("#button_filterAppliedStatus").removeClass("on");
+		$("#button_filterAppliedStatus").addClass("off");
+
+	}
 }
 
 // Eugene Burtsev

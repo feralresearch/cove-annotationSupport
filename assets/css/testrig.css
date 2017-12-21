@@ -7,6 +7,7 @@
   padding: 3rem 0 0 0; }
 
 #annotation_snapshotSelector_container {
+  z-index: 9000;
   background-color: grey;
   width: 100vw;
   padding: .5rem;
@@ -68,7 +69,8 @@
 
 .annotationSelected {
   background-color: #ffd105 !important;
- }
+  z-index: -1;
+  position: relative; }
 
 .annotationSelectedExact {
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffd105+0,ffff00+33,ffff00+50,ffff00+67,ffd105+100&0.96+10,0.96+50,0.96+90 */
@@ -139,58 +141,60 @@
   display: none;
   position: fixed;
   bottom: 0;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26); }
+  height: 15rem; }
 
 #ap_detail_panel_content {
   background-color: #BFBFBF;
   z-index: 2000;
   width: 100vw;
   height: 15rem;
-  border: 1px black solid;
-  border-bottom: 0; }
+  border: 0;
+  border-top: 1px #b5b5b5 solid;
+  box-shadow: 7px -1px 5px 1px rgba(0, 0, 0, 0.26); }
 
 .ap_detail_panel_minimized {
-  height: .5rem !important; }
+  height: 0.5rem !important; }
 
 /* The tab headers */
 .ap_tab,
 .ap_tab_pinned {
-  z-index: -1;
   border-radius: 0.3rem 0.3rem 0 0;
   background-color: #868686;
-  border: 1px solid black;
+  border-top: 1px #b5b5b5 solid;
   position: absolute;
-  top: 3;
-  left: 0;
+  top: 0;
   margin: 0;
-  padding: 0.25rem;
   width: 6rem;
   text-align: left;
-  height: 1.5rem;
-  padding: 0 0.4rem; }
+  padding: 0 0.4rem;
+  font-family: sans-serif;
+  font-weight: 700;
+  line-height: 1.6rem;
+  height: 1.62rem; }
+
+#ap_button_panelToggle {
+  font-family: FontAwesome; }
 
 .ap_tab.open,
 .ap_tab_pinned {
-  top: 0;
   z-index: 2010;
-  border: 1px 1px 0 1px solid black;
+  border: 1px 1px 0 1px solid #b5b5b5;
   border-bottom: 1px solid #BFBFBF;
-  background-color: #BFBFBF;
-  padding: 0.2rem 0.4rem;
-  height: 1.21rem; }
+  background-color: #BFBFBF; }
 
 .ap_tab_pinned {
+  line-height: 1.9rem;
   text-align: center;
-  width: 1.2rem;
-  border-bottom: 1px black solid;
-  background-color: #c6efee; }
+  width: 3.2rem;
+  border-bottom: 1px #9E9E9E solid;
+  background-color: #9E9E9E; }
 
 /* The tab content */
 #ap_annotation_sourcetext {
   font-family: sans-serif;
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: #00000087;
-  padding: 4rem 2rem 0 2rem;
+  padding: 4rem 2rem 0;
   height: 11rem;
   float: left;
   width: 30%;
@@ -200,7 +204,7 @@
 
 #ap_annotation_annotation {
   font-family: sans-serif;
-  padding: 4rem 2rem 0 2rem;
+  padding: 4rem 2rem 0;
   margin: 0;
   background-color: #e8e8e8;
   overflow: auto;
@@ -213,7 +217,7 @@
   border: 1px solid #80808024; }
 
 #ap_annotation_annotation p {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1rem;
   font-family: sans-serif;
   font-size: 1rem;
   line-height: 1.5rem; }
@@ -224,15 +228,108 @@
   background-color: #e6e5e5;
   width: 100%;
   position: fixed;
-  padding: .2rem 0 .5rem 0;
+  padding: 0.2rem 0 0.5rem;
   border-bottom: 1px solid #b3b3b3; }
 
 #ap_annotation_sourceinfo .typeIndicator {
-  padding: .2rem;
-  margin: .5rem;
+  padding: 0.2rem;
+  margin: 0.5rem;
   display: inline-block; }
 
 #ap_annotation_sourceInfoText {
-  margin: -1.5rem 0 0 2rem; }
+  line-height: 2.3rem;
+  margin-left: .8rem; }
+
+.ap_filterSet {
+  padding: 1rem;
+  display: block;
+  width: 17%;
+  height: 100%;
+  float: left;
+  height: 13rem;
+  border: 1px solid #00000017;
+  overflow: hidden; }
+
+.activeSet {
+  background-color: #2196f31f; }
+
+#ap_filter_category,
+#ap_filter_people,
+#ap_filter_tags {
+  overflow: auto;
+  height: 11rem;
+  border: 1px dashed #0000001c;
+  background-color: #ffffff30;
+  padding: 0.5rem;
+  border-radius: 0.3rem; }
+
+.filterOption {
+  overflow: hidden;
+  font-family: sans-serif;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  background-color: #f1f1f1;
+  border-radius: 0.3rem;
+  border: 1px #8080807a solid;
+  padding: 0.3rem;
+  margin: 0; }
+
+.categoryOption::before,
+.personOption::before,
+.tagOption::before {
+  font-family: FontAwesome;
+  color: #673AB7;
+  display: inline-block;
+  padding-right: 3px; }
+
+.tagOption::before {
+  color: purple;
+  content: "\f02b"; }
+
+.personOption::before {
+  color: green;
+  content: "\f007"; }
+
+.categoryOption::before {
+  color: blue;
+  content: "\f02d"; }
+
+.filterOption:hover {
+  font-weight: 700; }
+
+.filterOption.active:hover {
+  /*color: red;*/ }
+
+.filterOption:hover::before {
+  color: green;
+  content: "\f055"; }
+
+.filterOption.active:hover::before {
+  color: red;
+  content: "\f056"; }
+
+#button_filterApplied {
+  display: inline-block;
+  float: left;
+  padding: 0 0.3rem 0 0; }
+
+.fa_button {
+  font-size: 1.3rem;
+  padding: 0 0.2rem 0 0; }
+
+#button_filterAppliedStatus.on::before {
+  content: "Filter: ON";
+  line-height: 1.7rem; }
+
+#button_filterAppliedStatus.off::before {
+  content: "Filter: OFF";
+  line-height: 1.7rem; }
+
+#button_filterApplied {
+  font-size: 1.5rem; }
+
+.ap_filterSet hr {
+  border: 0;
+  border-bottom: 1px dashed #00000017; }
 
 /*# sourceMappingURL=testrig.css.map */

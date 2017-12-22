@@ -1,52 +1,53 @@
 .popover_title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 24px;
-  line-height: 36px;
-  text-decoration: none;
-  color: rgb(228, 68, 68);
-  text-align: center;
-  padding: 15px 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 24px;
+	line-height: 36px;
+	text-decoration: none;
+	color: rgb(228, 68, 68);
+	text-align: center;
+	padding: 15px 0;
 }
 
 .popover_wrapper {
 	z-index: 1000;
-    position: relative;
-    margin-top: 1.5rem;
-    display: inline-block;
-	outline:none;
+	position: relative;
+	margin-top: 1.5rem;
+	display: inline-block;
+	outline: none;
 }
-.popover_content {
-    position: absolute;
-  	transform: translate(-34px);
-    background-color: $mainColor;
-    padding: .5rem;
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-    width: auto;
 
+.popover_content {
+	position: absolute;
+	transform: translate(-34px);
+	background-color: $mainColor;
+	padding: 0.5rem;
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+	width: auto;
 }
+
 .popover_content:before {
-    position: absolute;
-    z-index: -1;
-    content: '';
-    /*right: calc(50% - 10px);*/
-    top: -8px;
-    border-style: solid;
-    border-width: 0 10px 10px 10px;
-    border-color: transparent transparent #BFBFBF transparent;
-    transition-duration: 0.3s;
-    transition-property: transform;
+	position: absolute;
+	z-index: -1;
+	content: '';
+	/*right: calc(50% - 10px);*/
+	top: -8px;
+	border-style: solid;
+	border-width: 0 10px 10px 10px;
+	border-color: transparent transparent #BFBFBF transparent;
+	transition-duration: 0.3s;
+	transition-property: transform;
 }
 
 .popover_message {
-  text-align: center;
+	text-align: center;
 }
 
-.annotationSelected{
+.annotationSelected {
 	background-color: $highlightColor !important;
-	position:relative;
+	position: relative;
 }
 
-.annotationSelectedExact{
+.annotationSelectedExact {
 	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffd105+0,ffff00+33,ffff00+50,ffff00+67,ffd105+100&0.96+10,0.96+50,0.96+90 */
 	background: -moz-linear-gradient(left, rgba(255,209,5,0.96) 0%, rgba(255,223,3,0.96) 10%, rgba(255,255,0,0.96) 33%, rgba(255,255,0,0.96) 50%, rgba(255,255,0,0.96) 67%, rgba(255,223,3,0.96) 90%, rgba(255,209,5,0.96) 100%) !important; /* FF3.6-15 */
 	background: -webkit-linear-gradient(left, rgba(255,209,5,0.96) 0%,rgba(255,223,3,0.96) 10%,rgba(255,255,0,0.96) 33%,rgba(255,255,0,0.96) 50%,rgba(255,255,0,0.96) 67%,rgba(255,223,3,0.96) 90%,rgba(255,209,5,0.96) 100%) !important; /* Chrome10-25,Safari5.1-6 */
@@ -54,68 +55,79 @@
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5ffd105', endColorstr='#f5ffd105',GradientType=1 ) !important; /* IE6-9 */
 }
 
-.typeIndicator{
+.typeIndicator {
 	background: #f00;
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
 }
-.typeIndicator_user{
+
+.typeIndicator_user {
 	background: $userColor;
 }
-.typeIndicator_tag{
+
+.typeIndicator_tag {
 	background: $tagColor;
 }
-.typeIndicator_category{
+
+.typeIndicator_category {
 	background: $categoryColor;
 }
 
-.popover_content{
-	border-radius:0.3rem;
-  font-family:sans-serif;
-}
-.popover_content table{
-  border:0;
-  padding:0 0 .5rem 0;
-  font-size:.8rem;
-  min-width: 500px;
+.popover_content {
+	border-radius: 0.3rem;
+	font-family: sans-serif;
 }
 
-.popover_content tr,td{
-  border:0;
+.popover_content table {
+	border: 0;
+	padding: 0 0 0.5rem;
+	font-size: 0.8rem;
+	min-width: 500px;
 }
 
-.popover_typeIdentifierString{
+.popover_content tr,
+td {
+	border: 0;
+}
 
+.popover_typeIdentifierString {}
+
+.popover_annotatedText {
+	border-radius: 0.3rem 0.3rem 0 0;
+	font-family: sans-serif;
+	font-style: italic;
+	font-size: 0.8rem;
+	background-color: #adadad;
+	color: #00000096;
+	margin: 0 0 1rem;
 }
-.popover_annotatedText{
-	 border-radius:0.3rem 0.3rem 0 0;
-  font-family:serif;
-  font-size:1rem;
-  background-color:#adadad;
-   color:#00000096;
+
+.popover_teaser {
+	padding: 0.3rem 0 0 1.2rem;
+	font-size: 0.8rem;
 }
-.popover_teaser{
-	padding: .3rem 0 0 1.2rem;
-  font-size:.8rem;
-}
-.popover_tag,.popover_category {
+
+.popover_category,
+.popover_tag {
 	background-color: #f1f1f1;
 	border-radius: 0.3rem;
-	border:1px #8080807a solid;
-	padding:0 .5rem 0 .5rem;
-	margin:0 .2rem 0 0;
+	border: 1px #8080807a solid;
+	padding: 0 0.5rem;
+	margin: 0 0.2rem 0 0;
 }
-.popover_category{
+
+.popover_category {
 	background-color: #cccccc;
 }
 
 .popover_content table {
-  border: 1px solid #6f6a6a45;
-  border-radius: 0.3rem;
-  padding:0 0 1rem 0;
-  margin:.4rem 0 0 0;
-  }
-.popover_content table:hover{
-  background-color:#6f6a6a9e;
+	border: 1px solid #6f6a6a45;
+	border-radius: 0.3rem;
+	padding: 0 0 1rem;
+	margin: 0.4rem 0 0;
+}
+
+.popover_content table:hover {
+	background-color: #6f6a6a9e;
 }

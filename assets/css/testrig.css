@@ -48,7 +48,7 @@
   position: absolute;
   transform: translate(-34px);
   background-color: #BFBFBF;
-  padding: .5rem;
+  padding: 0.5rem;
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
   width: auto; }
 
@@ -103,30 +103,34 @@
 
 .popover_content table {
   border: 0;
-  padding: 0 0 .5rem 0;
-  font-size: .8rem;
+  padding: 0 0 0.5rem;
+  font-size: 0.8rem;
   min-width: 500px; }
 
-.popover_content tr, td {
+.popover_content tr,
+td {
   border: 0; }
 
 .popover_annotatedText {
   border-radius: 0.3rem 0.3rem 0 0;
-  font-family: serif;
-  font-size: 1rem;
+  font-family: sans-serif;
+  font-style: italic;
+  font-size: 0.8rem;
   background-color: #adadad;
-  color: #00000096; }
+  color: #00000096;
+  margin: 0 0 1rem; }
 
 .popover_teaser {
-  padding: .3rem 0 0 1.2rem;
-  font-size: .8rem; }
+  padding: 0.3rem 0 0 1.2rem;
+  font-size: 0.8rem; }
 
-.popover_tag, .popover_category {
+.popover_category,
+.popover_tag {
   background-color: #f1f1f1;
   border-radius: 0.3rem;
   border: 1px #8080807a solid;
-  padding: 0 .5rem 0 .5rem;
-  margin: 0 .2rem 0 0; }
+  padding: 0 0.5rem;
+  margin: 0 0.2rem 0 0; }
 
 .popover_category {
   background-color: #cccccc; }
@@ -134,8 +138,8 @@
 .popover_content table {
   border: 1px solid #6f6a6a45;
   border-radius: 0.3rem;
-  padding: 0 0 1rem 0;
-  margin: .4rem 0 0 0; }
+  padding: 0 0 1rem;
+  margin: 0.4rem 0 0; }
 
 .popover_content table:hover {
   background-color: #6f6a6a9e; }

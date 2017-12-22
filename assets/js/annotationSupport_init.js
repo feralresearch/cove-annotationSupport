@@ -176,9 +176,15 @@ function displayPopOverWith(collectedAnnotations){
 
 			if(thisAnnotation.annotated_text !== previousText){
 				content += "<tr>";
-				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;";
-				content += "["+thisAnnotation.tags+"]</td>";
+				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;</td>";
 				content += "</tr>";
+				if(thisAnnotation.type === 'user'){
+					content += "<tr>";
+					content += "	<td colspan=2>["+thisAnnotation.tags+"]</td>";
+					content += "</tr>";
+				}
+
+
 			}
 			previousText=thisAnnotation.annotated_text;
 
@@ -259,12 +265,7 @@ $( window ).resize(function() {
 
 function toggleDensity(){
 	setDensityMode(!densityView);
-
-	if(densityView){
-		applyFilters();
-	}else{
-		resetAnnotationColor();
-	}
+	applyFilters();
 }
 function setDensityMode(modeShouldBeOn){
 	densityView=modeShouldBeOn;
@@ -348,7 +349,7 @@ function applyFilters(){
 		$("span[spanID]").each(function(){
 			var thisSpanID = $(this)[0].getAttribute("spanID");
 			if(theseSpansMatchFilter.indexOf(thisSpanID) > -1){
-				$(this).css("border", "1px red dashed");
+				$(this).css("border", "1px grey dashed");
 				if(densityView){
 					$(this).css("background-color", "rgba(64,64,64,.3)");
 				}else{

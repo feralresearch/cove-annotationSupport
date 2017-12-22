@@ -96,7 +96,7 @@
    color:#00000096;
 }
 .popover_teaser{
-  padding:0rem 0 0 1rem;
+	padding: .3rem 0 0 1.2rem;
   font-size:.8rem;
 }
 .popover_tag,.popover_category {
@@ -110,7 +110,12 @@
 	background-color: #cccccc;
 }
 
+.popover_content table {
+  border: 1px solid #6f6a6a45;
+  border-radius: 0.3rem;
+  padding:0 0 1rem 0;
+  margin:.4rem 0 0 0;
+  }
 .popover_content table:hover{
   background-color:#6f6a6a9e;
-  border-radius:0.3rem;
 }

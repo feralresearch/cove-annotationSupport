@@ -118,7 +118,7 @@
   color: #00000096; }
 
 .popover_teaser {
-  padding: 0rem 0 0 1rem;
+  padding: .3rem 0 0 1.2rem;
   font-size: .8rem; }
 
 .popover_tag, .popover_category {
@@ -131,9 +131,14 @@
 .popover_category {
   background-color: #cccccc; }
 
+.popover_content table {
+  border: 1px solid #6f6a6a45;
+  border-radius: 0.3rem;
+  padding: 0 0 1rem 0;
+  margin: .4rem 0 0 0; }
+
 .popover_content table:hover {
-  background-color: #6f6a6a9e;
-  border-radius: 0.3rem; }
+  background-color: #6f6a6a9e; }
 
 #ap_detail_panel {
   padding: 1.7rem 0 0;
@@ -221,13 +226,17 @@
   font-size: 1rem;
   line-height: 1.5rem; }
 
+#ap_annotation_sourceinfo td {
+  border-left: 2px solid #ababab;
+  padding: 0 .5rem 0 .3rem; }
+
 #ap_annotation_sourceinfo {
-  height: 2rem;
   font-family: sans-serif;
   background-color: #e6e5e5;
   width: 100%;
   position: fixed;
-  padding: 0.2rem 0 0.5rem;
+  padding: 0.4rem;
+  min-height: 1.6rem;
   border-bottom: 1px solid #b3b3b3; }
 
 #ap_annotation_sourceinfo .typeIndicator {
@@ -237,7 +246,7 @@
 
 #ap_annotation_sourceInfoText {
   line-height: 2.3rem;
-  margin-left: .8rem; }
+  margin-left: 0.8rem; }
 
 .ap_filterSet {
   color: #00000080;
@@ -289,13 +298,14 @@
   font-size: 1rem;
   line-height: 1.2rem;
   display: inline-block;
-  padding-right: 3px; }
+  padding-right: .3rem; }
 
 .tagOption::before {
   color: #00806c;
   content: "\f02b"; }
 
 .personOption::before {
+  padding-right: 0.5rem;
   color: #2196F3;
   content: "\f007"; }
 

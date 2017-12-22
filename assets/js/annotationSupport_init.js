@@ -95,7 +95,7 @@ function debounce_stop(){
 
 // Takes an array of spans (from onclick) and returns a more useful JSON
 function annotationsWithMetadata(spansArray){
-	var excerptLength=100;
+	var excerptLength=125;
 	var teaserLength=200;
 	var data = [];
 	for(var idx=0;idx<spansArray.length;idx++){
@@ -103,39 +103,36 @@ function annotationsWithMetadata(spansArray){
 		thisAnnotation.spanID = spansArray[idx].getAttribute("spanID");
 		thisAnnotation.annotation = annotationHash()[spansArray[idx].getAttribute("data-uuid")];
 
-		var firstRelatedAnnotationSelector = "span[data-uuid='"+spansArray[idx].getAttribute("data-uuid")+"']";
-		var firstRelatedAnnotation = $(firstRelatedAnnotationSelector).first();
-		thisAnnotation.annotated_text = firstRelatedAnnotation[0].innerText.trim().substring(0,excerptLength);
+
+		var convertLinebreaksToHTML = thisAnnotation.annotation.quote.replace(/(?:\r\n|\r|\n)/g, ' ');
+		thisAnnotation.annotated_text = convertLinebreaksToHTML.trim().substring(0,excerptLength);
 
 		thisAnnotation.author_email = thisAnnotation.annotation.user?thisAnnotation.annotation.user:null;
-		thisAnnotation.author_username = spansArray[idx].getAttribute("data-username");
+		thisAnnotation.author_username = thisAnnotation.annotation.username;
 		thisAnnotation.tags = thisAnnotation.annotation.tags;
-		// Create a type identifier string
-		var ti;
-		// User
+
+
+		// Author
+		thisAnnotation.displaystring_author="";
 		if(thisAnnotation.author_username){
-			ti = thisAnnotation.author_username + " ("+thisAnnotation.author_email+")";
-			thisAnnotation.type="user";
-
-		// Tag
-		}else if(thisAnnotation.annotation.tags.length > 0){
-			ti="";
-			for(var idx2=0;idx2<thisAnnotation.annotation.tags.length;idx2++){
-				ti += ("<span class='popover_tag'>"+thisAnnotation.annotation.tags[idx2]+"</span>");
-			}
-			thisAnnotation.type="tag";
-
-		// Category
-		}else if(thisAnnotation.annotation.annotation_categories.length > 0){
-
-			ti="";
-			for(var idx2=0;idx2<thisAnnotation.annotation.annotation_categories.length;idx2++){
-				ti += ("<span class='popover_category'>"+categoriesByID[thisAnnotation.annotation.annotation_categories[idx2]]+"</span>");
-			}
-			thisAnnotation.type="category";
-
+			thisAnnotation.displaystring_author = thisAnnotation.author_username + " ("+thisAnnotation.author_email+")";
 		}
-		thisAnnotation.typeIdentifierString = ti;
+
+		// Tags
+		thisAnnotation.displaystring_tags="";
+		if(thisAnnotation.annotation.tags.length > 0){
+			for(var idx2=0;idx2<thisAnnotation.annotation.tags.length;idx2++){
+				thisAnnotation.displaystring_tags += ("<span class='popover_tag'>"+thisAnnotation.annotation.tags[idx2]+"</span>");
+			}
+		}
+
+		// Categories
+		thisAnnotation.displaystring_categories="";
+		if(thisAnnotation.annotation.annotation_categories.length > 0){
+			for(var idx2=0;idx2<thisAnnotation.annotation.annotation_categories.length;idx2++){
+				thisAnnotation.displaystring_categories += ("<span class='popover_category'>"+categoriesByID[thisAnnotation.annotation.annotation_categories[idx2]]+"</span>");
+			}
+		}
 
 		// Strip tags and linebreaks into teaser
 		var annotationText = $("<div>").html(thisAnnotation.annotation.text).text().trim();
@@ -178,33 +175,34 @@ function displayPopOverWith(collectedAnnotations){
 				content += "<tr>";
 				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;</td>";
 				content += "</tr>";
-				if(thisAnnotation.type === 'user'){
-					content += "<tr>";
-					content += "	<td colspan=2>["+thisAnnotation.tags+"]</td>";
-					content += "</tr>";
-				}
-
-
 			}
 			previousText=thisAnnotation.annotated_text;
 
-			content += "<tr>";
 
-			switch (thisAnnotation.type) {
-				case "user":
-					content += "	<td class='personOption ";
-					break;
-
-				case "tag":
-					content += "	<td class='tagOption ";
-					break;
-
-				case "category":
-					content += "	<td class='categoryOption ";
-					break;
+			// Author
+			if(thisAnnotation.displaystring_author.length > 0){
+				content += "<tr>";
+				content += "	<td class='personOption ";
+				content += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_author+"</td>";
+				content += "</tr>";
 			}
-			content += "popover_typeIdentifierString'>"+thisAnnotation.typeIdentifierString+"</td>";
-			content += "</tr>";
+
+			// Tags
+			if(thisAnnotation.displaystring_tags.length > 0){
+				content += "<tr>";
+				content += "	<td class='tagOption ";
+				content += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_tags+"</td>";
+				content += "</tr>";
+			}
+
+			// Categories
+			if(thisAnnotation.displaystring_categories.length > 0){
+				content += "<tr>";
+				content += "	<td class='categoryOption ";
+				content += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_categories+"</td>";
+				content += "</tr>";
+			}
+
 			content += "<tr>";
 			content += "	<td class='popover_teaser'>"+thisAnnotation.teaser+"</td>";
 			content += "</tr>";

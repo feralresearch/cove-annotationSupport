@@ -214,7 +214,26 @@ AnnotationPanel.prototype.loadAnnotation = function(spanID){
 	}
 
 
-	sourceInfo += "' id='ap_annotation_sourceInfoText'>"+thisAnnotation.typeIdentifierString+"</div>";
+	var sourceInfo = "<table><tr>";
+	// Author
+	if(thisAnnotation.displaystring_author.length > 0){
+		sourceInfo += "	<td class='personOption ";
+		sourceInfo += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_author+"</td>";
+	}
+
+	// Tags
+	if(thisAnnotation.displaystring_tags.length > 0){
+		sourceInfo += "	<td class='tagOption ";
+		sourceInfo += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_tags+"</td>";
+	}
+
+	// Categories
+	if(thisAnnotation.displaystring_categories.length > 0){
+		sourceInfo += "	<td class='categoryOption ";
+		sourceInfo += "	popover_typeIdentifierString'>"+thisAnnotation.displaystring_categories+"</td>";
+	}
+	sourceInfo  += "</tr></table>";
+
 	$("#ap_annotation_sourceinfo").empty();
 	$("#ap_annotation_sourceinfo").append(sourceInfo);
 

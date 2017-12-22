@@ -348,6 +348,8 @@ function applyFilters(){
 			var thisSpanID = $(this)[0].getAttribute("spanID");
 			if(theseSpansMatchFilter.indexOf(thisSpanID) > -1){
 				$(this).css("border", "1px grey dashed");
+				$(this).css("border-left", "0px");
+				$(this).css("border-right", "0px");
 				if(densityView){
 					$(this).css("background-color", "rgba(64,64,64,.3)");
 				}else{

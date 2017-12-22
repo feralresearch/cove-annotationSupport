@@ -69,7 +69,6 @@
 
 .annotationSelected {
   background-color: #ffd105 !important;
-  z-index: -1;
   position: relative; }
 
 .annotationSelectedExact {
@@ -274,31 +273,32 @@
   padding: 0.3rem;
   margin: 0; }
 
-.categoryOption::before,
-.personOption::before,
-.tagOption::before {
-  font-family: FontAwesome;
-  color: #673AB7;
-  display: inline-block;
-  padding-right: 3px; }
-
-.tagOption::before {
-  color: purple;
-  content: "\f02b"; }
-
-.personOption::before {
-  color: green;
-  content: "\f007"; }
-
-.categoryOption::before {
-  color: blue;
-  content: "\f02d"; }
-
 .filterOption:hover {
   font-weight: 700; }
 
 .filterOption.active:hover {
   /*color: red;*/ }
+
+.categoryOption::before,
+.personOption::before,
+.tagOption::before {
+  font-family: FontAwesome;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  display: inline-block;
+  padding-right: 3px; }
+
+.tagOption::before {
+  color: #00806c;
+  content: "\f02b"; }
+
+.personOption::before {
+  color: #2196F3;
+  content: "\f007"; }
+
+.categoryOption::before {
+  color: #943a00;
+  content: "\f02d"; }
 
 .filterOption:hover::before {
   color: green;

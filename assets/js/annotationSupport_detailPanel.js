@@ -13,13 +13,7 @@ Assumes this is in the DOM:
 </div>
 
 */
-AnnotationPanel = function(){}
-
-// Props
-AnnotationPanel.prototype.isPanelOpen=false;
-
-// Init
-AnnotationPanel.prototype.init = function(){
+function AnnotationPanel(){
 	// Everything relies on "annotation_support" having been run
 	if (typeof annotationsAsHash === 'undefined') {
 		console.log('AnnotationDetailPanel: Annotations not found, did you run me before annotationSupport_init.js?');
@@ -82,20 +76,17 @@ AnnotationPanel.prototype.openTab = function(tabName){
 }
 
 AnnotationPanel.prototype.togglePanel = function(){
-	console.log("Toggling panel:"+this.isPanelOpen);
-	this.isPanelOpen=!this.isPanelOpen;
-	this.panelOpen(this.isPanelOpen);
+	var isMinimized = $("#ap_detail_panel").hasClass("ap_detail_panel_minimized");
+	this.panelOpen(isMinimized);
 }
 AnnotationPanel.prototype.panelOpen = function(shouldOpen){
 	if(shouldOpen){
-		this.isPanelOpen=true;
 		$(".ap_tab").show();
 		$("#ap_detail_panel").removeClass("ap_detail_panel_minimized");
 		$("#ap_button_panelToggle").removeClass("fa-arrow-circle-up");
 		$("#ap_button_panelToggle").addClass("fa-arrow-circle-down");
 
 	}else{
-		this.isPanelOpen=false;
 		$(".ap_tab").hide();
 		$("#ap_detail_panel").addClass("ap_detail_panel_minimized");
 		$("#ap_button_panelToggle").removeClass("fa-arrow-circle-down");

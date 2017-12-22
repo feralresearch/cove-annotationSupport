@@ -20,13 +20,11 @@ function annotationToolInit(){
 	annotationHash("refresh");
 
 	// Init panel
-	annotationPanel = new AnnotationPanel;
-	annotationPanel.init();
+	annotationPanel = new AnnotationPanel();
+
 	// Configure tabs and make visible
 	$("#ap_button_panelToggle").click(function(){
-		console.log("clickclickclick");
-		console.log("HereQWith: "+annotationPanel);
-		annotationPanel.togglePanel()
+		annotationPanel.togglePanel();
 	});
 
 	// Categories from filterList
@@ -36,28 +34,37 @@ function annotationToolInit(){
 	}
 
 	// Keep a copy of the background colors at load
-	// We also add a unique ID for every span and re-color with some transparency
-	// which allows us to see overlaps better.
-	annotationColors = [];
+	annotationColorsBySpanID = [];
+	spansByDataUUID = [];
 	$(".annotator-hl").each(function(index) {
-		$(this).attr('spanID', generateUUID);
 
+		// Add a unique ID for every span
+		var uniqueSpanID = generateUUID();
+		$(this).attr('spanID', uniqueSpanID);
+
+		// Create a lookup table for filters
+		var thisDataUUID = $(this)[0].getAttribute("data-uuid");
+		if(!(thisDataUUID in spansByDataUUID)){
+			spansByDataUUID[thisDataUUID]=[];
+		}
+		spansByDataUUID[thisDataUUID].push(uniqueSpanID);
+
+		// Add some transparency to the colors
 		// Assumes rgb(r,g,b) converts to rgba(r,g,b,0.6)
 		var bgcolor = $(this).css('background-color').split(",");
 		var backgroundColorWithOpacityAdjustment = "rgba("+parseInt(bgcolor[0].replace(/\D/g,''))+","
 														  +parseInt(bgcolor[1].replace(/\D/g,''))+","
 														  +parseInt(bgcolor[2].replace(/\D/g,''))+
 														  ",0.6)";
-		annotationColors.push(backgroundColorWithOpacityAdjustment);
+		annotationColorsBySpanID[uniqueSpanID]=backgroundColorWithOpacityAdjustment;
 	});
 	resetAnnotationColor();
 
 	// Add click handler
-	$(".annotator-hl").click(function() {
+	$("span[spanid]").click(function() {
   		debounceCollect(this);
 	});
 
-	toggleFilter()
 
 	$("#ap_filter_active").append("Click on tags, categories or people to build a filter.");
 	$("#annotation_detail_panel").fadeIn("fast");
@@ -73,7 +80,15 @@ function debounceCollect(annotation){
 	debounceTimer = setTimeout("debounce_stop()", 10);
 }
 function debounce_stop(){
-	displayPopOverWith(collectedAnnotations);
+
+
+	//FIXME: this is not the way to de-dup an spansArrayvar uniqueNames = [];
+	u_collectedAnnotations=[];
+	$.each(collectedAnnotations, function(i, el){
+	    if($.inArray(el, u_collectedAnnotations) === -1) u_collectedAnnotations.push(el);
+	});
+
+	displayPopOverWith(u_collectedAnnotations);
 	debounceTimer=null;
 	collectedAnnotations=[];
 }
@@ -94,7 +109,7 @@ function annotationsWithMetadata(spansArray){
 
 		thisAnnotation.author_email = thisAnnotation.annotation.user?thisAnnotation.annotation.user:null;
 		thisAnnotation.author_username = spansArray[idx].getAttribute("data-username");
-
+		thisAnnotation.tags = thisAnnotation.annotation.tags;
 		// Create a type identifier string
 		var ti;
 		// User
@@ -161,7 +176,8 @@ function displayPopOverWith(collectedAnnotations){
 
 			if(thisAnnotation.annotated_text !== previousText){
 				content += "<tr>";
-				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;</td>";
+				content += "	<td class='popover_annotatedText' colspan=2>&ldquo;…"+thisAnnotation.annotated_text+"…&rdquo;";
+				content += "["+thisAnnotation.tags+"]</td>";
 				content += "</tr>";
 			}
 			previousText=thisAnnotation.annotated_text;
@@ -207,9 +223,6 @@ function displayPopOverWith(collectedAnnotations){
 	var divUnderClick = "span[spanID='"+collectedAnnotations[0].getAttribute("spanID")+"']";
 	var topPos = $(divUnderClick).position().top;
 	var leftPos = $(divUnderClick).position().left + ($(divUnderClick).width()/2);
-
-	// Move left half of width to center (hardcoded because we can't calculate it while invisible)
-	//leftPos -= 60;
 	var allRelatedAnnotation = "span[data-uuid='"+collectedAnnotations[0].getAttribute("data-uuid")+"']";
 	$(allRelatedAnnotation).addClass("annotationSelected");
 	$(divUnderClick).addClass("annotationSelectedExact");
@@ -245,11 +258,20 @@ $( window ).resize(function() {
 
 
 function toggleDensity(){
-	densityView=!densityView;
+	setDensityMode(!densityView);
+
 	if(densityView){
+		applyFilters();
+	}else{
+		resetAnnotationColor();
+	}
+}
+function setDensityMode(modeShouldBeOn){
+	densityView=modeShouldBeOn;
+	if(modeShouldBeOn){
 		$("#button_densityView").removeClass("fa-file-text-o");
 		$("#button_densityView").addClass("fa-file-text");
-		$(".annotator-hl").each(function(index) {
+		$("span[spanid]").each(function(index) {
 			$(this).css("background-color", "rgba(64,64,64,.3)");
 		});
 	}else{
@@ -266,22 +288,74 @@ function toggleFilter(){
 }
 function applyFilters(){
 
-	// Remove all filters first
-	//$("span[spanID]").removeClass();
+	// Remove all click handler and all colors
+	$("span[spanID]").removeAttr("style");
+	$("span[spanID]").off();
 
-	// Turn on
-	if(filterApplied){
+	// Turn on selected if there is anything to apply
+	if(filterApplied && ($("#ap_filter_active").find("div").length > 0) ){
 		$("#button_filterApplied").removeClass("fa-toggle-off");
 		$("#button_filterApplied").addClass("fa-toggle-on");
 		$("#button_filterAppliedStatus").addClass("on");
 		$("#button_filterAppliedStatus").removeClass("off");
 
-		// Apply selected filters
+		// Build an array of uuids that match the filter criteria
+		var matchingAnnotationIDs = [];
 		$("#ap_filter_active").find("div").each(function(){
+
+			// string: tag | category | person
 			var filterType = $(this)[0].getAttribute("filtertype");
+
+			// id: tag | catID | email
 			var filterID = $(this)[0].getAttribute("filterid");
-			console.log(filterType+" - "+filterID);
-			//annotation_category-  filterID
+
+			for(idx=0;idx<annotations.length;idx++){
+				var thisAnnotation = annotations[idx];
+
+				switch (filterType) {
+					case "tag":
+						if(thisAnnotation.tags.indexOf(filterID) > -1){
+							matchingAnnotationIDs.push(thisAnnotation.uuid);
+						}
+						break;
+
+					case "category":
+						if(thisAnnotation.annotation_categories.indexOf(parseInt(filterID)) > -1){
+							matchingAnnotationIDs.push(thisAnnotation.uuid);
+						}
+						break;
+
+					case "person":
+						if(thisAnnotation.user.indexOf(filterID) > -1){
+							matchingAnnotationIDs.push(thisAnnotation.uuid);
+						}
+						break;
+				}
+			}
+
+		});
+
+		// Map uuids to spanIDs
+		var theseSpansMatchFilter=[];
+		for(idx=0;idx<matchingAnnotationIDs.length;idx++){
+			var thisAnnotationID=matchingAnnotationIDs[idx];
+			for(idx2=0;idx2<spansByDataUUID[thisAnnotationID].length;idx2++){
+				theseSpansMatchFilter.push(spansByDataUUID[thisAnnotationID][idx2]);
+			}
+		}
+
+		// Finally restore the spans that match our filter parameters
+		$("span[spanID]").each(function(){
+			var thisSpanID = $(this)[0].getAttribute("spanID");
+			if(theseSpansMatchFilter.indexOf(thisSpanID) > -1){
+				$(this).css("border", "1px red dashed");
+				if(densityView){
+					$(this).css("background-color", "rgba(64,64,64,.3)");
+				}else{
+					$(this).css("background-color", annotationColorsBySpanID[thisSpanID]);
+				}
+				$(this).click(function() {debounceCollect(this);});
+			}
 		});
 
 	// Turn off
@@ -290,8 +364,20 @@ function applyFilters(){
 		$("#button_filterApplied").addClass("fa-toggle-off");
 		$("#button_filterAppliedStatus").removeClass("on");
 		$("#button_filterAppliedStatus").addClass("off");
-
+		resetFilters();
 	}
+}
+
+// Clear out the filters
+function resetFilters(){
+
+	// reset the colors
+	setDensityMode(densityView);
+
+	// Add click handler
+	$("span[spanid]").click(function() {
+  		debounceCollect(this);
+	});
 }
 
 // Eugene Burtsev
@@ -308,8 +394,10 @@ function generateUUID() {
 // Resets the annotations to their original colors
 function resetAnnotationColor() {
 	idx = 0;
-	$(".annotator-hl").each(function(index) {
-		$(this).css("background-color", annotationColors[idx]);
+	$("span[spanid]").each(function(index) {
+		var thisSpanID = $(this)[0].getAttribute("spanID");
+		$(this).removeClass();
+		$(this).css("background-color", annotationColorsBySpanID[thisSpanID]);
 		idx++;
 	});
 }

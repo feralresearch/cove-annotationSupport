@@ -6,14 +6,45 @@
 		<script>
 			// Init
 			$( document ).ready(function() {
+				$("#annotation_detail_panel").hide();
 
+
+				// Init dropdown with snapshots
+				var data = {
+				    'assets/snapshots/goblin_market.html': 'Goblin Market',
+				    'assets/snapshots/harlots_house.html':'Harlots House',
+					'assets/snapshots/heart_of_darkness_part1.html':'Heart of Darkness I',
+					'assets/snapshots/in_an_artists_studio.html':'In An Artists Studio'
+				}
+				var selector = $('#annotation_snapshotSelector');
+				for(var val in data) {
+				    $('<option  />', {value: val, text: data[val]}).appendTo(selector);
+				}
+				selector.appendTo('#annotation_snapshotSelector_container'); // or wherever it should be
+
+				// Initial load
+				setTimeout(function(){
+					// Actually realated to annotations
 					$( "#annotation_snapshot" ).load('assets/snapshots/goblin_market.html', function(){annotationToolInit();});
 					$("#annotation_detail_panel").fadeIn("fast");
+				},1000);
 			});
+
+			function changeSnapshot(){
+				removeExistingPopover();
+				var selectBox = document.getElementById("annotation_snapshotSelector");
+				var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+				$( "#annotation_snapshot" ).load(selectedValue, function(){annotationToolInit();});
+			}
 		</script>
 		<link rel="stylesheet" type="text/css" href="assets/css/testrig.css">
 	</head>
 	<body>
+		<div id="annotation_snapshotSelector_container">
+			<select id="annotation_snapshotSelector" onchange="changeSnapshot()">
+				<option>Select Snapshot:</option>
+			</select>
+		</div>
 
 		<!-- Snapshot goes here --->
 		<div id="content">

@@ -140,13 +140,13 @@
   display: none;
   position: fixed;
   bottom: 0;
-  height: 15rem; }
+  height: 25rem; }
 
 #ap_detail_panel_content {
   background-color: #BFBFBF;
   z-index: 2000;
   width: 100vw;
-  height: 15rem;
+  height: 25rem;
   border: 0;
   border-top: 1px #b5b5b5 solid;
   box-shadow: 7px -1px 5px 1px rgba(0, 0, 0, 0.26); }
@@ -194,7 +194,7 @@
   font-size: 0.9rem;
   color: #00000087;
   padding: 4rem 2rem 0;
-  height: 11rem;
+  height: 21rem;
   float: left;
   width: 30%;
   font-style: italic;
@@ -207,7 +207,7 @@
   margin: 0;
   background-color: #e8e8e8;
   overflow: auto;
-  height: 11rem; }
+  height: 21rem; }
 
 #ap_annotation_annotation img {
   float: right;
@@ -240,23 +240,26 @@
   margin-left: .8rem; }
 
 .ap_filterSet {
+  color: #00000080;
+  font-family: sans-serif;
   padding: 1rem;
   display: block;
-  width: 17%;
+  width: 18%;
   height: 100%;
   float: left;
-  height: 13rem;
+  height: 25rem;
   border: 1px solid #00000017;
   overflow: hidden; }
 
 .activeSet {
+  color: black;
   background-color: #2196f31f; }
 
 #ap_filter_category,
 #ap_filter_people,
 #ap_filter_tags {
   overflow: auto;
-  height: 11rem;
+  height: 21rem;
   border: 1px dashed #0000001c;
   background-color: #ffffff30;
   padding: 0.5rem;

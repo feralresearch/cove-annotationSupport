@@ -228,7 +228,8 @@
 
 #ap_annotation_sourceinfo td {
   border-left: 2px solid #ababab;
-  padding: 0 .5rem 0 .3rem; }
+  padding: 0 .5rem 0 .3rem;
+  white-space: nowrap; }
 
 #ap_annotation_sourceinfo {
   font-family: sans-serif;
